@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Cédula Venezuela - Consulta y Validación",
   "short_name": "Cédula VE",
-  "description": "Aplicación Android para consulta, validación de formato (V/E con 8 dígitos) y datos de identidad con la API de cedula.com.ve.",
+  "description": "Aplicación Android para consulta, validación de formato (V/E con 7 u 8 dígitos) y datos de identidad con la API de cedula.com.ve.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

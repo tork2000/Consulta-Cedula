@@ -70,6 +70,29 @@ export const InstallModal: React.FC<InstallModalProps> = ({
     2
   );
 
+  const [copiedName, setCopiedName] = useState(false);
+  const [copiedShortName, setCopiedShortName] = useState(false);
+
+  const handleCopyText = (text: string, type: 'name' | 'shortName') => {
+    navigator.clipboard.writeText(text);
+    if (type === 'name') {
+      setCopiedName(true);
+      setTimeout(() => setCopiedName(false), 2000);
+    } else {
+      setCopiedShortName(true);
+      setTimeout(() => setCopiedShortName(false), 2000);
+    }
+  };
+
+  const handleDownloadIcon = (src: string, filename: string) => {
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const handleCopyManifest = () => {
     navigator.clipboard.writeText(manifestJsonContent);
     setCopiedManifest(true);
@@ -204,43 +227,121 @@ export const InstallModal: React.FC<InstallModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: Why PWABuilder failed & How to fix */}
+          {/* TAB 2: PWABuilder APK Generator & Asset Downloads */}
           {activeTab === 'pwabuilder' && (
             <div className="space-y-3">
-              <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-2xl space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
-                  <span>¿Por qué PWABuilder dio &quot;No tiene manifest&quot;?</span>
+              <div className="p-3 bg-blue-950/40 border border-blue-500/30 rounded-2xl space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-300">
+                  <Smartphone className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <span>Empaquetar APK en PWABuilder</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  El enlace que colocaste (<code className="text-amber-200 text-[11px] bg-slate-950 px-1 py-0.5 rounded">ais-dev-...</code>) es el servidor privado de desarrollo de Google Cloud y <strong>requiere autenticación con tu cuenta de Google</strong>.
-                </p>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Cuando el robot de PWABuilder intenta escanearlo desde internet, Google le muestra una página de inicio de sesión, por lo que PWABuilder no puede ver el código ni el manifest.
+                  PWABuilder no pudo leer el manifest automáticamente porque el enlace de Google Cloud tiene protección de acceso. Puedes completar los datos en 30 segundos usando los botones de abajo:
                 </p>
               </div>
 
-              <div className="p-3 bg-slate-800/70 border border-slate-700 rounded-2xl space-y-2 text-xs">
-                <span className="font-bold text-white block">Cómo generar el APK con PWABuilder:</span>
-                <p className="text-slate-300 leading-relaxed">
-                  Para que PWABuilder empaquete el APK automáticamente en la nube, el sitio debe estar en una URL pública sin bloqueo de Google (por ejemplo en Vercel, Netlify, Cloudflare o GitHub Pages, que son gratuitos):
-                </p>
-                <ol className="text-slate-300 space-y-1.5 list-decimal list-inside pl-1 text-[11px]">
-                  <li>Ve a la pestaña <strong>3. Manifest</strong> y copia el manifest.</li>
-                  <li>En PWABuilder, selecciona la opción para pegar el manifest directamente o usa tu dominio público.</li>
-                  <li>PWABuilder compilará tu APK firmado listo para descargar en tu Android.</li>
-                </ol>
+              {/* Step 1: Copy Name & Short Name */}
+              <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-2xl space-y-2.5 text-xs">
+                <span className="font-bold text-white block text-xs">Paso 1: Datos de la aplicación</span>
+                
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-700/60">
+                    <div>
+                      <div className="text-[10px] text-slate-400">Nombre (Name)</div>
+                      <div className="font-semibold text-slate-200 text-xs">Cédula Venezuela - Consulta y Validación</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText('Cédula Venezuela - Consulta y Validación', 'name')}
+                      className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                    >
+                      {copiedName ? <Check className="w-3 h-3 text-emerald-300" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedName ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-700/60">
+                    <div>
+                      <div className="text-[10px] text-slate-400">Nombre corto (Short Name)</div>
+                      <div className="font-semibold text-slate-200 text-xs">Cédula VE</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText('Cédula VE', 'shortName')}
+                      className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                    >
+                      {copiedShortName ? <Check className="w-3 h-3 text-emerald-300" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedShortName ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <a
-                href="https://www.pwabuilder.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full min-h-[42px] bg-slate-800 hover:bg-slate-750 active:scale-98 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-slate-700 shadow-sm"
-              >
-                <span>Abrir portal de PWABuilder</span>
-                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-              </a>
+              {/* Step 2: Download Icons */}
+              <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-2xl space-y-2 text-xs">
+                <span className="font-bold text-white block text-xs">Paso 2: Descargar Iconos Oficiales para PWABuilder</span>
+                <p className="text-[11px] text-slate-300">
+                  Descarga los iconos y súbelos en el apartado de iconos de PWABuilder:
+                </p>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadIcon('/pwa-512x512.png', 'pwa-512x512.png')}
+                    className="p-2.5 bg-slate-900 hover:bg-slate-750 border border-slate-700/80 rounded-xl text-left flex items-center gap-2 transition-all group"
+                  >
+                    <img src="/pwa-512x512.png" alt="Icono 512" className="w-8 h-8 rounded-lg shadow-sm shrink-0" />
+                    <div>
+                      <div className="font-bold text-white text-xs group-hover:text-blue-400 flex items-center gap-1">
+                        <span>Icono 512px</span>
+                        <Download className="w-3 h-3" />
+                      </div>
+                      <div className="text-[10px] text-slate-400">Requerido por APK</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadIcon('/pwa-192x192.png', 'pwa-192x192.png')}
+                    className="p-2.5 bg-slate-900 hover:bg-slate-750 border border-slate-700/80 rounded-xl text-left flex items-center gap-2 transition-all group"
+                  >
+                    <img src="/pwa-192x192.png" alt="Icono 192" className="w-8 h-8 rounded-lg shadow-sm shrink-0" />
+                    <div>
+                      <div className="font-bold text-white text-xs group-hover:text-blue-400 flex items-center gap-1">
+                        <span>Icono 192px</span>
+                        <Download className="w-3 h-3" />
+                      </div>
+                      <div className="text-[10px] text-slate-400">Para móviles</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Step 3: PWABuilder Action */}
+              <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-2xl space-y-2 text-xs">
+                <span className="font-bold text-white block text-xs">Paso 3: Generar y Descargar APK</span>
+                <p className="text-[11px] text-slate-300">
+                  En PWABuilder haz clic en <strong>&quot;Package for Android&quot;</strong>, selecciona <strong>&quot;Generate APK&quot;</strong> y listo.
+                </p>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleDownloadManifest}
+                    className="flex-1 min-h-[40px] bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 border border-slate-600"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Descargar manifest.json</span>
+                  </button>
+                  <a
+                    href="https://www.pwabuilder.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 min-h-[40px] bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md"
+                  >
+                    <span>Ir a PWABuilder</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
             </div>
           )}
 
