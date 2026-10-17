@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Clear stale service worker and caches from preview iframe immediately
+      if ('caches' in window) {
+        caches.keys().then(function (names) {
+          names.forEach(function (name) { caches.delete(name); });
+        });
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          for (var reg of regs) { reg.unregister(); }
+        });
+      }
+
+      // Fallback preamble for React Fast Refresh
+      window.$RefreshReg$ = window.$RefreshReg$ || function () {};
+      window.$RefreshSig$ = window.$RefreshSig$ || function () { return function (type) { return type; }; };
+      window.__vite_plugin_react_preamble_installed__ = true;
+
+      // Filter dev-server HMR WebSocket and transport notices in iframe sandbox
+      (function () {
+        var _origError = console.error;
+        console.error = function () {
+          var str = Array.prototype.slice.call(arguments).map(function (a) {
+            return (a && (a.message || a.stack || String(a))) || '';
+          }).join(' ');
+          if (str.includes("reading 'send'") || str.includes('WebSocket') || str.includes('preamble') || (arguments[0] === '[vite]' && str.includes('send'))) {
+            return;
+          }
+          return _origError.apply(console, arguments);
+        };
+      })();
+
+      window.addEventListener('unhandledrejection', function (e) {
+        var msg = (e && e.reason && (e.reason.message || e.reason.stack)) || '';
+        if (typeof msg === 'string' && (msg.includes('WebSocket') || msg.includes('@vite/client') || msg.includes("reading 'send'") || msg.includes('preamble'))) {
+          e.preventDefault();
+        }
+      });
+      window.addEventListener('error', function (e) {
+        var msg = (e && (e.message || (e.error && e.error.message))) || '';
+        var src = (e && e.filename) || '';
+        if (typeof msg === 'string' && (msg.includes('WebSocket') || msg.includes("reading 'send'") || msg.includes('preamble') || src.includes('@vite/client'))) {
+          e.preventDefault();
+          return true;
+        }
+      }, true);
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Cédula Venezuela - Consulta y Validación</title>
+    <meta name="description" content="Aplicación Android para consulta, validación de formato (V/E con 7 u 8 dígitos) y datos de identidad con la API de cedula.com.ve." />
+    <meta property="og:title" content="Cédula Venezuela - Consulta y Validación" />
+    <meta property="og:description" content="Aplicación Android para consulta, validación de formato (V/E con 7 u 8 dígitos) y datos de identidad con la API de cedula.com.ve." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Android & Mobile Web App meta tags -->
+    <meta name="theme-color" content="#0d47a1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cédula VE" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Google Fonts: Plus Jakarta Sans for Material 3 typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-slate-100 text-slate-900 antialiased selection:bg-blue-600 selection:text-white min-h-screen">
+    <script>
+      // Clean up any stale PWA cache from earlier dev sessions
+      if ('caches' in window) {
+        caches.keys().then(function (names) {
+          names.forEach(function (name) {
+            if (name !== 'cedula-ve-v3') {
+              caches.delete(name);
+            }
+          });
+        });
+      }
+
+      // Register Service Worker for PWA compliance and offline support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then(function (reg) {
+              reg.update();
+            })
+            .catch(function (err) {
+              console.warn('SW registration:', err);
+            });
+        });
+      }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

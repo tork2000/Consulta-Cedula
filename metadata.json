@@ -1,0 +1,6 @@
+{
+  "name": "Cédula Venezuela - Consulta y Validación",
+  "description": "Aplicación Android para consulta, validación de formato (V/E con 7 u 8 dígitos) y datos de identidad con la API de cedula.com.ve.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+    <linearGradient id="flagY" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFCC00"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="flagB" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00247D"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="flagR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#CF142B"/>
+      <stop offset="100%" stop-color="#DC2626"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Squircle for Android Adaptive Icon -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Tricolor Accent Top Bar -->
+  <path d="M 40 40 L 472 40 Q 472 40 472 40 L 472 56 L 40 56 Z" fill="url(#flagY)"/>
+  <path d="M 40 56 L 472 56 L 472 72 L 40 72 Z" fill="url(#flagB)"/>
+  <path d="M 40 72 L 472 72 L 472 88 L 40 88 Z" fill="url(#flagR)"/>
+
+  <!-- Card Body -->
+  <rect x="56" y="110" width="400" height="270" rx="24" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="4"/>
+
+  <!-- Card Top Stripe (Venezuela Tricolor Inside Card) -->
+  <path d="M 58 126 Q 58 112 72 112 L 440 112 Q 454 112 454 126 L 454 130 L 58 130 Z" fill="#F59E0B"/>
+  <rect x="58" y="130" width="396" height="8" fill="#1D4ED8"/>
+  <rect x="58" y="138" width="396" height="8" fill="#DC2626"/>
+
+  <!-- Photo Area Placeholder -->
+  <rect x="86" y="166" width="100" height="126" rx="12" fill="#1e293b" stroke="#60a5fa" stroke-width="2"/>
+  <circle cx="136" cy="210" r="28" fill="#94a3b8"/>
+  <path d="M 104 274 C 104 246 168 246 168 274 Z" fill="#94a3b8"/>
+
+  <!-- Card Header Text / Shield -->
+  <text x="210" y="180" font-family="system-ui, sans-serif" font-weight="800" font-size="15" fill="#f8fafc" letter-spacing="1">REPÚBLICA BOLIVARIANA</text>
+  <text x="210" y="198" font-family="system-ui, sans-serif" font-weight="700" font-size="12" fill="#93c5fd" letter-spacing="2">DE VENEZUELA</text>
+
+  <!-- Cédula Number Badge -->
+  <rect x="210" y="214" width="220" height="38" rx="8" fill="#0f172a" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="222" y="239" font-family="system-ui, monospace" font-weight="800" font-size="20" fill="#38bdf8" letter-spacing="1.5">V-12345678</text>
+
+  <!-- Person details lines -->
+  <rect x="210" y="262" width="160" height="8" rx="4" fill="#64748b"/>
+  <rect x="210" y="276" width="120" height="8" rx="4" fill="#475569"/>
+
+  <!-- Micro Chip Icon -->
+  <rect x="86" y="306" width="36" height="28" rx="4" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <line x1="98" y1="306" x2="98" y2="334" stroke="#b45309" stroke-width="1"/>
+  <line x1="86" y1="320" x2="122" y2="320" stroke="#b45309" stroke-width="1"/>
+
+  <!-- Fingerprint Emblem -->
+  <g transform="translate(380, 290) scale(0.7)" stroke="#60a5fa" stroke-width="3" fill="none" opacity="0.8">
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 3.31 1.62 6.24 4.12 8.04"/>
+    <path d="M18.88 5.12A9.97 9.97 0 0 1 22 12c0 5.52-4.48 10-10 10-2.3 0-4.42-.78-6.12-2.09"/>
+    <path d="M12 6c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.14 2.97 5.19"/>
+    <path d="M15.5 8.5C16.43 9.43 17 10.65 17 12c0 2.76-2.24 5-5 5-1.15 0-2.21-.39-3.05-1.05"/>
+    <path d="M12 10a2 2 0 0 0-2 2c0 .88.58 1.63 1.38 1.89"/>
+  </g>
+
+  <!-- Android style bottom check / verified badge -->
+  <g transform="translate(256, 430)">
+    <circle cx="0" cy="0" r="44" fill="#10b981"/>
+    <path d="M -16 -2 L -6 8 L 18 -14" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>
