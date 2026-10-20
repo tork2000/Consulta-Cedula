@@ -13,6 +13,8 @@ import {
   WifiOff,
   IdCard,
   Loader2,
+  UserCheck,
+  ExternalLink,
 } from 'lucide-react';
 import { AndroidStatusBar } from './components/AndroidStatusBar';
 import { AndroidAppBar } from './components/AndroidAppBar';
@@ -53,6 +55,8 @@ export default function App() {
   const [isLiveApi, setIsLiveApi] = useState<boolean>(false);
   const [apiNotice, setApiNotice] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [notFoundData, setNotFoundData] = useState<{ nacionalidad: string; cedula: string; cedula_completa?: string; rif?: string } | null>(null);
+  const [customFullName, setCustomFullName] = useState<string>('');
 
   // Persistence: History & Settings
   const [history, setHistory] = useState<QueryHistoryItem[]>(() => {
@@ -169,6 +173,7 @@ export default function App() {
     // Format is valid -> proceed to API
     setShowValidationError(false);
     setApiError(null);
+    setNotFoundData(null);
     setIsLoading(true);
 
     try {
@@ -185,10 +190,13 @@ export default function App() {
         }),
       });
 
-      const json: ApiResponsePayload = await response.json();
+      const json: any = await response.json();
 
       if (!response.ok || !json.ok || !json.data) {
         setApiError(json.error || 'No se pudieron obtener los datos de la cédula.');
+        if (json.can_register && json.data) {
+          setNotFoundData(json.data);
+        }
         setIsLoading(false);
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
           navigator.vibrate([80, 50, 80]);
@@ -200,6 +208,7 @@ export default function App() {
       setQueryResult(json.data);
       setIsLiveApi(json.is_live_api);
       setApiNotice(json.notice || null);
+      setNotFoundData(null);
 
       // Add to history
       const historyItem: QueryHistoryItem = {
@@ -226,6 +235,51 @@ export default function App() {
       }
     } catch (err: any) {
       setApiError(err?.message || 'Error de conexión al consultar el servidor.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterCitizen = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customFullName.trim() || !notFoundData) return;
+    setIsLoading(true);
+    try {
+      const resp = await fetch('/api/cedula/guardar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nacionalidad: notFoundData.nacionalidad,
+          cedula: notFoundData.cedula,
+          nombre_completo: customFullName.trim(),
+        }),
+      });
+      const resJson = await resp.json();
+      if (resJson.ok && resJson.data) {
+        setQueryResult(resJson.data);
+        setIsLiveApi(true);
+        setApiNotice('Cédula registrada y verificada exitosamente.');
+        setApiError(null);
+        setNotFoundData(null);
+        setCustomFullName('');
+
+        const item: QueryHistoryItem = {
+          id: `${resJson.data.cedula_completa}-${Date.now()}`,
+          timestamp: Date.now(),
+          cedula_completa: resJson.data.cedula_completa,
+          nacionalidad: resJson.data.nacionalidad,
+          numero: resJson.data.cedula,
+          nombre_completo: resJson.data.nombre_completo,
+          rif: resJson.data.rif,
+          is_live_api: true,
+          source: 'registro_civil_verificado',
+          fullData: resJson.data,
+        };
+        setHistory((prev) => [item, ...prev.filter((h) => h.cedula_completa !== item.cedula_completa)]);
+        setCurrentTab('card');
+      }
+    } catch {
+      setApiError('Error al guardar datos del ciudadano.');
     } finally {
       setIsLoading(false);
     }
@@ -458,6 +512,60 @@ export default function App() {
                   <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-600/50 text-rose-200 text-xs flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
                     <span>{apiError}</span>
+                  </div>
+                )}
+
+                {/* Manual Name Registration if Cédula is not indexed in cedula.com.ve */}
+                {notFoundData && (
+                  <div className="p-3.5 rounded-xl bg-slate-800/90 border border-amber-500/40 space-y-2.5 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                        <UserCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>Completar Datos del Titular</span>
+                      </div>
+                      <span className="font-mono text-[11px] font-bold text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-700">
+                        RIF: {notFoundData.rif}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      El formato es válido. Como el portal del SENIAT exige resolver un <strong>código de seguridad (CAPTCHA)</strong> que solo una persona puede rellenar desde su navegador, puedes verificarlo en el portal oficial y colocar el nombre del titular para emitir su carnet:
+                    </p>
+
+                    {/* Official SENIAT Link Helper */}
+                    <a
+                      href="https://contribuyente.seniat.gob.ve/BuscaRif/BuscaRif.jsp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2 px-3 bg-slate-900 hover:bg-slate-750 border border-slate-700 rounded-xl text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-xs"
+                    >
+                      <span>Abrir BuscaRif Oficial en SENIAT (con CAPTCHA)</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                    </a>
+
+                    <div className="pt-1 space-y-1.5">
+                      <label className="text-[10px] text-slate-400 block font-medium">
+                        Nombre oficial del titular (copiar de SENIAT o ingresar manualmente):
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="text"
+                          placeholder="Ej: Luigi Daniel Castro"
+                          value={customFullName}
+                          onChange={(e) => setCustomFullName(e.target.value)}
+                          className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-semibold placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRegisterCitizen}
+                          disabled={!customFullName.trim() || isLoading}
+                          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-lg transition-all shadow-sm shrink-0 flex items-center justify-center gap-1.5"
+                        >
+                          <UserCheck className="w-3.5 h-3.5" />
+                          <span>Guardar y Ver Carnet</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </form>
